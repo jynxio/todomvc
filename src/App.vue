@@ -49,12 +49,12 @@ function updateTodoName(event: InputEvent, todo: Todo) {
         </section>
         <section>
             <div v-for="todo in filteredTodos" :key="todo.uuid">
-                <span @click="todo.complete = !todo.complete;">{{ todo.complete ? "✅" : "❎" }}</span>
+                <input type="checkbox" v-model="todo.complete" />
                 <span @dblclick="todo.editable = !todo.editable">
                     <input :value="todo.name" :disabled="!todo.editable" @blur="todo.editable = false"
                         @input="(event: InputEvent) => updateTodoName(event, todo)" />
                 </span>
-                <span @click="todos.splice(todos.indexOf(todo), 1)">delete</span>
+                <button @click="todos.splice(todos.indexOf(todo), 1)">delete</button>
             </div>
         </section>
         <section>
@@ -62,9 +62,11 @@ function updateTodoName(event: InputEvent, todo: Todo) {
                 @click="isAllCompleted ? todos.forEach(todo => todo.complete = false) : todos.forEach(todo => todo.complete = true)">
                 Toggle
             </button>
-            <button @click="filteredType = 'all'">All</button>
-            <button @click="filteredType = 'complete'">Completed</button>
-            <button @click="filteredType = 'incomplete'">Incompleted</button>
+            <select v-model="filteredType">
+                <option value="all">All</option>
+                <option value="complete">Completed</option>
+                <option value="incomplete">Incompleted</option>
+            </select>
         </section>
     </main>
 </template>
