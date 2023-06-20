@@ -61,16 +61,16 @@ function handleVnodeMounted ({ el }: { el: HTMLInputElement }) {
     <section class="todoapp">
         <header class="header">
             <h1>todos</h1>
-            <input class="new-todo" autofocus placeholder="What needs to be done?" @keyup.enter="addTodo">
+            <input class="new-todo" autofocus placeholder="What needs to be done?" @keyup.enter="addTodo" />
         </header>
         <section class="main" v-show="filteredTodos.length">
-            <input id="toggle-all" class="toggle-all" type="checkbox" :checked="activeCount === 0" @change="toggleAll">
+            <input id="toggle-all" class="toggle-all" type="checkbox" :checked="activeCount === 0" @change="toggleAll" />
             <label for="toggle-all">Mark all as complete</label>
             <ul class="todo-list">
                 <li v-for="todo in filteredTodos" class="todo" :key="todo.id"
                     :class="{ completed: todo.completed, editing: editedTodoId === todo.id }">
                     <div class="view">
-                        <input class="toggle" type="checkbox" v-model="todo.completed">
+                        <input class="toggle" type="checkbox" v-model="todo.completed" />
                         <label @dblclick="editedTodoId = todo.id, editedTodoMemo = todo.title">{{ todo.title }}</label>
                         <button class="destroy"
                             @click="todos.splice(todos.findIndex(item => item.id === todo.id), 1)"></button>
@@ -78,7 +78,7 @@ function handleVnodeMounted ({ el }: { el: HTMLInputElement }) {
                     <input v-if="todo.id === editedTodoId" class="edit" type="text" v-model="todo.title"
                         @blur="editedTodoId = undefined" @keyup.enter="editedTodoId = undefined"
                         @vnode-mounted="handleVnodeMounted"
-                        @keyup.escape="editedTodoId = undefined, todos.find(item => item.id === todo.id && (item.title = editedTodoMemo))">
+                        @keyup.escape="editedTodoId = undefined, todos.find(item => item.id === todo.id && (item.title = editedTodoMemo))" />
                 </li>
             </ul>
         </section>
