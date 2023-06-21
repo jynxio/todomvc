@@ -1,80 +1,128 @@
-import { useState, useLayoutEffect, useMemo, KeyboardEvent } from "react";
+import { useState, useEffect, useMemo, KeyboardEvent, FocusEvent } from "react";
 
-type Todo = {
-    uuid: number;
-    name: string;
-    editable: boolean;
-    complete: boolean;
-};
-type FilteredType = "all" | "complete" | "incomplete";
+type Todo = { id: string; title: string; completed: boolean };
 
-const storageKey = "react-todomve";
+const storageKey = "todomvc";
 
 function App() {
-    const [filteredType, setFilteredType] = useState<FilteredType>("all");
     const [todos, setTodos] = useState<Todo[]>(JSON.parse(localStorage.getItem(storageKey) ?? "[]"));
+    const [filterType, setFilterType] = useState<"all" | "active" | "completed">("all");
+    const [editingId, setEditingId] = useState<string>();
+
+    const activeCount = useMemo(() => todos.filter(todo => !todo.completed).length, [todos])
     const filteredTodos = useMemo(() => {
-        if (filteredType === "all") return todos;
-        if (filteredType === "complete") return todos.filter(todo => todo.complete);
-        if (filteredType === "incomplete") return todos.filter(todo => !todo.complete);
+        if (filterType === "all") return [...todos];
+        if (filterType === "active") return todos.filter(todo => !todo.completed);
+        if (filterType === "completed") return todos.filter(todo => todo.completed);
 
         return [];
-    }, [todos, filteredType]);
+    }, [todos, filterType]);
 
-    useLayoutEffect(() => {
-        localStorage.setItem(storageKey, JSON.stringify(todos));
-    }, [todos]);
+    useEffect(() => localStorage.setItem(storageKey, JSON.stringify(todos)), [todos]);
+    useEffect(() => {
+        globalThis.addEventListener("hashchange", handleHashChange);
+        return () => globalThis.removeEventListener("hashchange", handleHashChange);
+    });
 
-    return <>
-        <section><input placeholder="What needs to be done?" onKeyUp={addTodo} /></section>
-        <section>
-            <ol>{
-                filteredTodos.map(todo => <li key={todo.uuid}>
-                    <input type="checkbox" checked={todo.complete}
-                        onChange={() => setTodos(todos.map(item => item.uuid === todo.uuid ? { ...item, complete: !item.complete } : item))}
-                    />
-                    <span
-                        onDoubleClick={() => setTodos(todos.map(item => item.uuid === todo.uuid ? { ...item, editable: !item.editable } : item))}
-                    ><input disabled={!todo.editable} value={todo.name}
-                        onBlur={() => setTodos(todos.map(item => item.uuid === todo.uuid ? { ...item, editable: false } : item))}
-                        onChange={e => setTodos(todos.map(item => item.uuid === todo.uuid ? { ...item, name: e.target.value } : item))}
-                        /></span>
-                    <button onClick={() => setTodos(todos.filter(item => item.uuid !== todo.uuid))}>delete</button>
-                </li>)
-            }</ol>
+    return (
+        <section className="todoapp">
+            <header className="header">
+                <h1>todos</h1>
+                <input className="new-todo" autoFocus placeholder="What needs to be done?" onKeyUp={addTodo} />
+            </header>
+            {Boolean(filteredTodos.length) && <section className="main">
+                <input id="toggle-all" className="toggle-all" type="checkbox" checked={activeCount === 0} onChange={toggleAll} />
+                <label htmlFor="toggle-all">Mark all as complete</label>
+                <ul className="todo-list">{filteredTodos.map(todo =>
+                    <li className={["todo", todo.completed ? "completed" : "", editingId === todo.id ? "editing" : ""].join(" ")} key={todo.id}>
+                        <div className="view">
+                            <input className="toggle" type="checkbox" checked={todo.completed} onChange={() => toggleTodo(todo.id)} />
+                            <label onDoubleClick={() => setEditingId(todo.id)}>{todo.title}</label>
+                            <button className="destroy" onClick={() => removeTodo(todo.id)}></button>
+                        </div>{editingId === todo.id &&
+                            <input className="edit" type="text" defaultValue={todo.title} onBlur={handleBlurEvent} onKeyUp={handleKeyupEvent}
+                                ref={ref => Promise.resolve().then(() => ref?.focus())} />
+                        }</li>)}
+                </ul>
+            </section>}{Boolean(todos.length) && <footer className="footer">
+                <span className="todo-count">
+                    <strong>{activeCount}</strong>
+                    <span> item{activeCount > 1 && "s"} left</span>
+                </span>
+                <ul className="filters">
+                    <li><a href="#/all" className={filterType === "all" ? "selected" : ""}>All</a></li>
+                    <li><a href="#/active" className={filterType === "active" ? "selected" : ""}>Active</a></li>
+                    <li><a href="#/completed" className={filterType === "completed" ? "selected" : ""}>Completed</a></li>
+                </ul>
+                {activeCount < todos.length && <button className="clear-completed" onClick={clearCompletedTodo}>Clear completed</button>}
+            </footer>}
         </section>
-        <section>
-            <button onClick={toggleAll}>toggle</button>
-            <select onChange={e => setFilteredType(e.target.value as FilteredType)}>
-                <option value="all">all</option>
-                <option value="complete">complate</option>
-                <option value="incomplete">incomplete</option>
-            </select>
-        </section>
-    </>;
+    );
 
-    function addTodo(e: KeyboardEvent<HTMLInputElement>) {
-        if (e.key.toLowerCase() !== "enter") return;
+    function addTodo({ key, target }: KeyboardEvent) {
+        if (key.toLowerCase() !== "enter") return;
+        if (!target) return
 
-        const target = e.target as HTMLInputElement;
+        const input = target as HTMLInputElement;
 
-        if (!target.value) return;
+        if (!input.value) return
 
-        const todo: Todo = {
-            uuid: Date.now(),
-            name: target.value,
-            editable: false,
-            complete: false,
-        };
-
-        target.value = "";
-        setTodos(todos => [...todos, todo]);
+        setTodos([...todos, { id: String(Date.now()), title: input.value, completed: false }])
+        input.value = "";
     }
 
     function toggleAll() {
-        const isAllCompleted = !todos.some(todo => !todo.complete);
+        setTodos(todos.map(todo => ({ ...todo, completed: activeCount !== 0 })));
+    }
 
-        setTodos(todos.map(todo => ({ ...todo, complete: !isAllCompleted })));
+    function toggleTodo(id: string) {
+        setTodos(todos.map(todo => todo.id === id ? { ...todo, completed: !todo.completed } : todo))
+    }
+
+    function removeTodo(id: string) {
+        setTodos(todos.filter(todo => todo.id !== id))
+    }
+
+    function handleBlurEvent({ target }: FocusEvent<HTMLInputElement>) {
+        const input = target as HTMLInputElement;
+        const index = todos.findIndex(todo => todo.id === editingId);
+
+        if (index === -1) return;
+
+        todos[index].title = input.value;
+        setTodos(todos)
+        setEditingId(undefined);
+    }
+
+    function handleKeyupEvent({ key, target }: KeyboardEvent) {
+        const input = target as HTMLInputElement;
+
+        if (key.toLowerCase() === "enter") {
+            input.blur();
+            return;
+        }
+
+        if (key.toLowerCase() === "escape") {
+            input.value = todos.find(todo => todo.id === editingId)?.title ?? input.value;
+            input.blur();
+            return;
+        }
+    }
+
+    function clearCompletedTodo() {
+        setTodos(todos.filter(todo => !todo.completed));
+    }
+
+    function handleHashChange() {
+        const route = globalThis.location.hash.replace(/#\/?/, "");
+
+        if (route === "all" || route === "active" || route === "completed") {
+            setFilterType(route)
+            return;
+        }
+
+        globalThis.location.hash = "";
+        setFilterType("all");
     }
 }
 
