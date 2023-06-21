@@ -8,10 +8,10 @@ const storageKey = "todomvc";
 function App() {
     const [todos, setTodos] = createStore<Todo[]>(JSON.parse(localStorage.getItem(storageKey) ?? "[]"));
     const [getEditingId, setEditingId] = createSignal<string>();
-    const [getFilterTipe, setFilterType] = createSignal<"all" | "active" | "completed">("all");
+    const [getFilterType, setFilterType] = createSignal<"all" | "active" | "completed">("all");
     const getActiveCount = createMemo(() => todos.filter(todo => !todo.completed).length);
     const getFilteredTodos = createMemo(() => {
-        const type = getFilterTipe();
+        const type = getFilterType();
 
         if (type === "all") return [...todos];
         if (type === "completed") return todos.filter(todo => todo.completed);
@@ -21,7 +21,6 @@ function App() {
     });
 
     // handle routing
-    handleHashChange();
     onMount(() => globalThis.addEventListener("hashchange", handleHashChange));
     onCleanup(() => globalThis.removeEventListener("hashchange", handleHashChange));
 
@@ -53,7 +52,7 @@ function App() {
                             </li>
                         }</For>
                     </ul>
-                </section >
+                </section>
             </Show>
             <Show when={todos.length}>
                 <footer class="footer">
@@ -62,16 +61,16 @@ function App() {
                         <span> item{getActiveCount() > 1 && "s"} left</span>
                     </span>
                     <ul class="filters">
-                        <li><a href="#/all" classList={{ selected: getFilterTipe() === "all" }}>All</a></li>
-                        <li><a href="#/active" classList={{ selected: getFilterTipe() === "active" }}>Active</a></li>
-                        <li><a href="#/completed" classList={{ selected: getFilterTipe() === "completed" }}>Completed</a></li >
-                    </ul >
+                        <li><a href="#/all" classList={{ selected: getFilterType() === "all" }}>All</a></li>
+                        <li><a href="#/active" classList={{ selected: getFilterType() === "active" }}>Active</a></li>
+                        <li><a href="#/completed" classList={{ selected: getFilterType() === "completed" }}>Completed</a></li>
+                    </ul>
                     <Show when={getActiveCount() < todos.length}>
                         <button class="clear-completed" onClick={clearCompletedTodo}>Clear completed</button>
                     </Show>
-                </footer >
+                </footer>
             </Show>
-        </section >
+        </section>
     );
 
     function addTodo({ key, target }: KeyboardEvent) {
