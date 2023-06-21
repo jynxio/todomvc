@@ -1,11 +1,11 @@
 <script setup lang="ts">
 import { ref, computed, watch, onMounted, onUnmounted } from "vue";
 
-type Todo = { id: number; title: string; completed: boolean };
+type Todo = { id: string; title: string; completed: boolean };
 
 const storageKey = "todomvc";
 
-const editedTodoId = ref<number>();
+const editedTodoId = ref<string>();
 const editedTodoMemo = ref("");
 const todos = ref<Todo[]>(JSON.parse(localStorage.getItem(storageKey) ?? "[]"))
 const filteredType = ref<"all" | "completed" | "active">("all");
@@ -30,7 +30,7 @@ function addTodo(event: KeyboardEvent) {
 
     if (!target.value) return;
 
-    todos.value.push({ id: Date.now(), title: target.value.trim(), completed: false });
+    todos.value.push({ id: String(Date.now()), title: target.value.trim(), completed: false });
     target.value = "";
 }
 
@@ -52,7 +52,7 @@ function handleHashChange() {
     filteredType.value = "all";
 }
 
-function handleVnodeMounted ({ el }: { el: HTMLInputElement }) {
+function handleVnodeMounted({ el }: { el: HTMLInputElement }) {
     el.focus();
 }
 </script>
@@ -88,23 +88,13 @@ function handleVnodeMounted ({ el }: { el: HTMLInputElement }) {
                 <span>{{ activeCount === 1 ? ' item' : ' items' }} left</span>
             </span>
             <ul class="filters">
-                <li>
-                    <a href="#/all" :class="{ selected: filteredType === 'all' }">All</a>
-                </li>
-                <li>
-                    <a href="#/active" :class="{ selected: filteredType === 'active' }">Active</a>
-                </li>
-                <li>
-                    <a href="#/completed" :class="{ selected: filteredType === 'completed' }">Completed</a>
-                </li>
+                <li><a href="#/all" :class="{ selected: filteredType === 'all' }">All</a></li>
+                <li><a href="#/active" :class="{ selected: filteredType === 'active' }">Active</a></li>
+                <li><a href="#/completed" :class="{ selected: filteredType === 'completed' }">Completed</a></li>
             </ul>
-            <button class="clear-completed" @click="todos = todos.filter(todo => !todo.completed)" v-show="activeCount">
+            <button class="clear-completed" @click="todos = todos.filter(todo => !todo.completed)" v-show="activeCount < todos.length">
                 Clear completed
             </button>
         </footer>
     </section>
 </template>
-
-<style>
-@import "https://unpkg.com/todomvc-app-css@2.4.1/index.css";
-</style>
