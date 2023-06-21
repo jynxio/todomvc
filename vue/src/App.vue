@@ -21,7 +21,6 @@ watch(todos, value => {
     localStorage.setItem(storageKey, JSON.stringify(value))
 }, { flush: "sync", deep: true });
 
-handleHashChange();
 onMounted(() => globalThis.addEventListener("hashchange", handleHashChange));
 onUnmounted(() => globalThis.removeEventListener("hashchange", handleHashChange));
 
