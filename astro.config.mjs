@@ -6,5 +6,8 @@ import solidJs from "@astrojs/solid-js";
 
 // https://astro.build/config
 export default defineConfig({
-  integrations: [react(), vue(), solidJs()]
+    integrations: [react(), vue(), solidJs()],
+    build: {
+        outDir: "./docs"
+    }
 });
