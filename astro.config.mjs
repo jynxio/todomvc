@@ -7,5 +7,7 @@ import solidJs from "@astrojs/solid-js";
 // https://astro.build/config
 export default defineConfig({
     integrations: [react(), vue(), solidJs()],
-    outDir: "./docs"
+    outDir: "./docs",
+    site: 'https://jynxio.github.io',
+    base: '/todomvc',
 });
