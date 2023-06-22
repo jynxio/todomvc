@@ -19,3 +19,6 @@ pnpm-debug.log*
 
 # macOS-specific files
 .DS_Store
+
+# lock (if not, the github action will be block)
+pnpm-lock.yaml
