@@ -4,7 +4,7 @@ import Layout from "../layouts/Layout.astro";
 
 <Layout title="TodoMVC" which="home">
 	<header>
-		<section><img src="/todomvc.svg" /></section>
+		<section><img src=`${ import.meta.env.BASE_URL }/todomvc.svg` /></section>
 		<section>
 			<p>This is a playful project about <a href="https://todomvc.com/">TodoMVC</a></p>
 			<p><a href="https://github.com/jynxio/todomvc">Source Code</a> | Made by <a href="https://github.com/jynxio">Jynxio</a></p>
