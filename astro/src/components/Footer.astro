@@ -1,0 +1,55 @@
+---
+export interface Props {
+	which: "home" | "react" | "vue" | "solid";
+}
+
+const { which } = Astro.props;
+---
+
+<footer>
+    <ul>
+        <li><a class:list={ { current: which === "home" } } href="/">Home</a></li>
+        <li><a class:list={ { current: which === "react" } } href="/react/">React</a></li>
+        <li><a class:list={ { current: which === "solid" } } href="/solid/">Solid</a></li>
+        <li><a class:list={ { current: which === "vue" } } href="/vue/">Vue</a></li>
+    </ul>
+</footer>
+
+<style>
+    footer {
+        position: fixed;
+        left: 50%;
+        bottom: 0%;
+        transform: translate(-50%);
+    }
+
+    ul {
+        display: flex;
+        padding: 0;
+    }
+
+    li {
+        list-style: none;
+    }
+
+    li:not(:last-child)::after {
+        content: "|";
+        margin-inline: 0.5rem;
+    }
+
+	a {
+		color: #9f3c3c;
+        font-weight: 400;
+		text-decoration: none;
+	}
+
+	a:hover, a:focus {
+		text-decoration-line: underline;
+		text-decoration-style: dashed;
+	}
+
+    a.current {
+        text-decoration-line: underline;
+        text-decoration-style: wavy;
+    }
+</style>

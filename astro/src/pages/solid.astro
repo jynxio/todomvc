@@ -1,0 +1,8 @@
+---
+import Layout from "../layouts/Layout.astro";
+import Todo from "../components/Solid";
+---
+
+<Layout title="TodoMVC (Solid)" which="solid">
+	<Todo client:only="solid-js" />
+</Layout>

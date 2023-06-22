@@ -1,0 +1,8 @@
+---
+import Layout from "../layouts/Layout.astro";
+import Todo from "../components/React";
+---
+
+<Layout title="TodoMVC (React)" which="react">
+	<Todo client:only="react" />
+</Layout>

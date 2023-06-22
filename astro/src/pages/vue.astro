@@ -1,0 +1,8 @@
+---
+import Layout from "../layouts/Layout.astro";
+import Todo from "../components/Vue.vue";
+---
+
+<Layout title="TodoMVC (Vue)" which="vue">
+	<Todo client:only="vue" />
+</Layout>
