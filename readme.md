@@ -1,12 +1,12 @@
-<img src="./todomvc.svg" width="100" height="100" />
+<img src="./todomvc.svg" width="96" height="86" />
 
 
 
-# TodoMVC
+## TodoMVC
 
 This is a playful project about [TodoMVC](https://todomvc.com/).
 
-
+<br />
 
 ## License
 
